@@ -26,6 +26,10 @@
 
 * { box-sizing: border-box; }
 
+/* FIX: without this, [hidden] never hides .chat-list because the class
+   sets display:flex and wins over the browser's [hidden] rule. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -155,12 +159,23 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   color: #fff;
 }
 
-.history-item span {
+.history-item .hi-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+  min-width: 0;
 }
+
+.history-item .hi-del {
+  flex: none;
+  padding: 0 3px;
+  border-radius: 5px;
+  color: #71819a;
+  line-height: 1;
+}
+
+.history-item .hi-del:hover { color: #ff8a8a; }
 
 .side-footer {
   border-top: 1px solid var(--line);
@@ -483,6 +498,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .typing i:nth-child(2) { animation-delay: .15s; }
 .typing i:nth-child(3) { animation-delay: .3s; }
 
+/* Plain-text view used while a response is streaming in. */
+.stream-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pending-note {
+  color: #71819a;
+  font-size: 11px;
+}
+
 .composer-wrap {
   padding: 12px 22px 17px;
   border-top: 1px solid var(--line);
@@ -547,7 +573,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   border-radius: 7px;
   padding: 6px 8px;
   font-size: 10px;
-  max-width: 180px;
+  max-width: 190px;
 }
 
 .send {
@@ -714,8 +740,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     </div>
 
     <div class="side-actions">
-      <button class="primary" id="newChat">＋ &nbsp; New conversation</button>
-      <button class="secondary" id="openSettings">⚙ &nbsp; Model & API settings</button>
+      <button class="primary" id="newChat" type="button">＋ &nbsp; New conversation</button>
+      <button class="secondary" id="openSettings" type="button">⚙ &nbsp; Model & API settings</button>
     </div>
 
     <div class="section-label">Your workspace</div>
@@ -736,7 +762,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   <main class="workspace">
     <header class="topbar">
       <div class="top-left">
-        <button class="iconbtn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+        <button class="iconbtn mobile-menu" id="menuBtn" aria-label="Open menu" type="button">☰</button>
         <div>
           <div class="eyebrow">ENGINEERING INTELLIGENCE</div>
           <div class="top-title" id="topTitle">Your next idea starts here.</div>
@@ -744,9 +770,9 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       </div>
 
       <div class="top-right">
-        <button class="modebtn active" id="chatMode">◉ Chat</button>
-        <button class="modebtn" id="buildMode">⌘ Build Mode</button>
-        <button class="iconbtn" id="topSettings" title="Settings">⚙</button>
+        <button class="modebtn active" id="chatMode" type="button">◉ Chat</button>
+        <button class="modebtn" id="buildMode" type="button">⌘ Build Mode</button>
+        <button class="iconbtn" id="topSettings" title="Settings" type="button">⚙</button>
       </div>
     </header>
 
@@ -759,22 +785,22 @@ button:disabled { opacity: .45; cursor: not-allowed; }
           <p>Describe what you want to build, debug, or understand. Forge AI can help turn your instructions into code, product plans, and practical engineering solutions.</p>
 
           <div class="chips">
-            <button class="chip" data-prompt="Build a polished, responsive portfolio website with a dark theme, animated hero, project cards, and contact section. Provide complete runnable code.">
+            <button class="chip" type="button" data-prompt="Build a polished, responsive portfolio website with a dark theme, animated hero, project cards, and contact section. Provide complete runnable code.">
               <strong>↗ Build a website</strong>
               <span>Go from a plain-English idea to a complete implementation.</span>
             </button>
 
-            <button class="chip" data-prompt="Design and implement a full-stack application architecture for an expense tracker, including UI, data model, API routes, validation, and setup instructions.">
+            <button class="chip" type="button" data-prompt="Design and implement a full-stack application architecture for an expense tracker, including UI, data model, API routes, validation, and setup instructions.">
               <strong>⌘ Engineer an app</strong>
               <span>Plan the architecture, features, data, and implementation.</span>
             </button>
 
-            <button class="chip" data-prompt="Review this code for bugs, edge cases, performance issues, and security risks. Explain the root causes and provide a corrected version.">
+            <button class="chip" type="button" data-prompt="Review this code for bugs, edge cases, performance issues, and security risks. Explain the root causes and provide a corrected version.">
               <strong>⌕ Debug and improve</strong>
               <span>Find problems and make targeted, maintainable fixes.</span>
             </button>
 
-            <button class="chip" data-prompt="Create a browser-based 3D arcade racing game prototype. First outline a practical implementation, then generate the complete runnable code and controls.">
+            <button class="chip" type="button" data-prompt="Create a browser-based 3D arcade racing game prototype. First outline a practical implementation, then generate the complete runnable code and controls.">
               <strong>⚡ Forge a game</strong>
               <span>Turn a game concept into a playable prototype plan and code.</span>
             </button>
@@ -827,6 +853,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     </div>
 
     <div class="field">
+      <label for="memoryNotes">Long-term memory notes <span style="color:#6f7f98">(optional)</span></label>
+      <textarea id="memoryNotes" rows="4" placeholder="Facts, preferences, or project context Forge should remember in every conversation…"></textarea>
+    </div>
+
+    <div class="field">
       <label for="temperature">Temperature: <span id="tempValue">0.4</span></label>
       <input id="temperature" type="range" min="0" max="1.5" step="0.1" value="0.4">
     </div>
@@ -841,7 +872,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     </div>
 
     <div class="notice">
-      Never paste your API key into a public/shared computer. Browser storage is convenient for a personal prototype, but it is not a secure production secret store.
+      Never paste your API key into a public/shared computer. Browser storage is convenient for a personal prototype, but it is not a secure production secret store.<br><br>
+      Tip: free model IDs end with <code>:free</code>. Availability rotates — if one stops working, check openrouter.ai/models?max_price=0 and paste a new ID in the Model field.
     </div>
 
     <div class="modal-actions">
@@ -857,29 +889,39 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 (() => {
   "use strict";
 
-  const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
   const STORAGE = {
     key: "forge_api_key_v1",
     model: "forge_model_v1",
     system: "forge_system_v1",
+    memory: "forge_memory_v1",
     temp: "forge_temp_v1",
     tokens: "forge_tokens_v1",
     chats: "forge_chats_v1",
     active: "forge_active_v1"
   };
 
-  const DEFAULT_MODEL = "openai/gpt-4o-mini";
+  /* Default is a free OpenRouter model. If it disappears, pick another
+     ":free" model from the dropdown (or paste any model ID in settings). */
+  const DEFAULT_MODEL = "deepseek/deepseek-chat-v3-0324:free";
 
   const DEFAULT_SYSTEM = `You are Forge AI, a senior software engineer, AI systems architect, product builder, and cybersecurity-aware coding agent. Be direct, precise, practical, and implementation-first. When asked to build software, provide coherent runnable implementations, architecture and setup steps appropriate to the request. Make sensible assumptions when details are missing and ask only essential questions. For multi-file projects, clearly label each file and its complete contents. Distinguish generated code from code that has actually been executed or tested; never claim to have run, tested, deployed, or verified something unless a real tool did so. Be honest about model/tool limitations. Preserve existing work and prefer targeted fixes. Support authorized defensive security and safe labs; do not assist credential theft, malware deployment, or unauthorized compromise.`;
 
+  const BUILD_INSTRUCTIONS = `You are now in BUILD MODE. Treat the user's request as a product implementation task. Return: (1) concise requirements and assumptions, (2) architecture and file tree, (3) complete code for every necessary file, (4) install/run instructions, (5) test checklist and known limitations. For large tasks, prioritize a complete runnable MVP over incomplete breadth. Never claim files were created or code executed in this browser; provide the code and steps.`;
+
   const PRESETS = [
+    { label: "DeepSeek Chat — free", value: "deepseek/deepseek-chat-v3-0324:free" },
+    { label: "Llama 3.3 70B — free", value: "meta-llama/llama-3.3-70b-instruct:free" },
+    { label: "Qwen 2.5 Coder 32B — free", value: "qwen/qwen-2.5-coder-32b-instruct:free" },
+    { label: "Gemini 2.0 Flash — free", value: "google/gemini-2.0-flash-exp:free" },
+    { label: "Mistral Small 3.2 — free", value: "mistralai/mistral-small-3.2-24b-instruct:free" },
     { label: "OpenAI GPT-4o mini", value: "openai/gpt-4o-mini" },
     { label: "OpenAI GPT-4.1", value: "openai/gpt-4.1" },
     { label: "Anthropic Claude Sonnet 4", value: "anthropic/claude-sonnet-4" },
     { label: "Google Gemini 2.5 Flash", value: "google/gemini-2.5-flash" },
-    { label: "DeepSeek Chat", value: "deepseek/deepseek-chat" },
-    { label: "Qwen Coder", value: "qwen/qwen3-coder" }
+    { label: "DeepSeek Chat — paid", value: "deepseek/deepseek-chat" },
+    { label: "Qwen3 Coder", value: "qwen/qwen3-coder" }
   ];
 
   let chats = loadJSON(STORAGE.chats, []);
@@ -904,7 +946,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   }
 
   function esc(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -922,12 +964,15 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   }
 
   function getSetting(key, fallback) {
-    return localStorage.getItem(key) ?? fallback;
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value;
   }
 
   function currentModel() {
     return getSetting(STORAGE.model, DEFAULT_MODEL);
   }
+
+  /* ---------------- chat storage ---------------- */
 
   function saveChats() {
     localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
@@ -936,10 +981,19 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   }
 
   function currentChat() {
-    return chats.find(c => c.id === activeId) || null;
+    return chats.find((c) => c.id === activeId) || null;
   }
 
   function newChat() {
+    const existing = currentChat();
+
+    // Don't pile up empty conversations — reuse the blank one.
+    if (existing && existing.messages.length === 0) {
+      $("prompt").focus();
+      $("sidebar").classList.remove("open");
+      return;
+    }
+
     const chat = {
       id: makeId(),
       title: "New conversation",
@@ -961,54 +1015,68 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     return currentChat();
   }
 
+  /* ---------------- rendering ---------------- */
+
   function renderHistory() {
     const root = $("history");
     root.innerHTML = "";
 
     if (!chats.length) {
-      root.innerHTML = '<div style="padding:12px;color:#596780;font-size:11px;line-height:1.6">Your conversations will appear here.</div>';
+      root.innerHTML =
+        '<div style="padding:12px;color:#596780;font-size:11px;line-height:1.6">Your conversations will appear here.</div>';
       return;
     }
 
-    chats.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).forEach(chat => {
-      const button = document.createElement("button");
-      button.className = "history-item" + (chat.id === activeId ? " active" : "");
+    chats
+      .slice()
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .forEach((chat) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "history-item" + (chat.id === activeId ? " active" : "");
 
-      button.innerHTML = `
-        <span style="color:#6e809b">◷</span>
-        <span>${esc(chat.title)}</span>
-        <span title="Delete conversation" style="color:#71819a">⋯</span>
-      `;
+        button.innerHTML =
+          '<span style="color:#6e809b">◷</span>' +
+          '<span class="hi-title">' + esc(chat.title) + "</span>" +
+          '<span class="hi-del" data-del="1" title="Delete conversation">⋯</span>';
 
-      button.addEventListener("click", event => {
-        if (event.target.closest("span:last-child")) {
-          event.stopPropagation();
+        button.addEventListener("click", (event) => {
+          // Robust delete detection — no fragile :last-child selector.
+          if (event.target.closest("[data-del]")) {
+            event.stopPropagation();
 
-          if (confirm("Delete this conversation?")) {
-            chats = chats.filter(c => c.id !== chat.id);
+            if (confirm("Delete this conversation?")) {
+              chats = chats.filter((c) => c.id !== chat.id);
 
-            if (activeId === chat.id) {
-              activeId = chats[0]?.id || null;
+              if (activeId === chat.id) {
+                activeId = chats[0]?.id || null;
+              }
+
+              saveChats();
+              renderChat();
             }
 
-            saveChats();
-            renderChat();
+            return;
           }
 
-          return;
-        }
+          activeId = chat.id;
+          saveChats();
+          renderChat();
+          $("sidebar").classList.remove("open");
+        });
 
-        activeId = chat.id;
-        saveChats();
-        renderChat();
-        $("sidebar").classList.remove("open");
+        root.appendChild(button);
       });
-
-      root.appendChild(button);
-    });
   }
 
-  function renderChat() {
+  function smartScroll() {
+    const c = $("content");
+    if (c.scrollHeight - c.scrollTop - c.clientHeight < 160) {
+      c.scrollTop = c.scrollHeight;
+    }
+  }
+
+  function renderChat(forceScroll = true) {
     const chat = currentChat();
     const welcome = $("welcome");
     const list = $("chatList");
@@ -1026,11 +1094,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     list.innerHTML = "";
     $("topTitle").textContent = chat.title;
 
-    chat.messages.forEach(message => {
+    chat.messages.forEach((message) => {
       list.appendChild(makeMessage(message));
     });
 
-    list.scrollTop = list.scrollHeight;
+    // FIX: the scroll container is #content, not #chatList.
+    if (forceScroll) {
+      const c = $("content");
+      c.scrollTop = c.scrollHeight;
+    } else {
+      smartScroll();
+    }
   }
 
   function markdownHTML(text) {
@@ -1038,16 +1112,18 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       marked.setOptions({ gfm: true, breaks: true });
 
       return DOMPurify.sanitize(marked.parse(text), {
-        USE_PROFILES: { html: true }
+        USE_PROFILES: { html: true },
+        ADD_ATTR: ["target"]
       });
     }
 
-    return `<p>${esc(text).replace(/\n/g, "<br>")}</p>`;
+    return "<p>" + esc(text).replace(/\n/g, "<br>") + "</p>";
   }
 
   function makeMessage(message) {
     const wrap = document.createElement("article");
     wrap.className = "message " + message.role;
+    if (message.pending) wrap.dataset.pending = "1";
 
     const avatar = document.createElement("div");
     avatar.className = "avatar";
@@ -1058,12 +1134,473 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
     const head = document.createElement("div");
     head.className = "msg-head";
-    head.innerHTML = `${message.role === "user" ? "You" : "Forge AI"} <small>${message.role === "user" ? "INPUT" : "RESPONSE"}</small>`;
+    head.innerHTML =
+      (message.role === "user" ? "You" : "Forge AI") +
+      " <small>" + (message.role === "user" ? "INPUT" : "RESPONSE") + "</small>";
 
     const content = document.createElement("div");
     content.className = "msg-content";
 
     if (message.pending) {
-      content.innerHTML = '<div class="typing"><i></i><i></i><i></i></div><div style="color:#71819a;font-size:11px">Generating response…</div>';
+      content.innerHTML =
+        '<div class="typing"><i></i><i></i><i></i></div>' +
+        '<div class="pending-note">Generating response…</div>';
     } else {
-      content.innerHTML
+      content.innerHTML = markdownHTML(message.content || "");
+
+      content.querySelectorAll("a").forEach((a) => {
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+      });
+
+      content.querySelectorAll("pre").forEach((pre) => {
+        const holder = document.createElement("div");
+        holder.className = "codewrap";
+
+        pre.parentNode.insertBefore(holder, pre);
+        holder.appendChild(pre);
+
+        const copy = document.createElement("button");
+        copy.type = "button";
+        copy.className = "copycode";
+        copy.textContent = "Copy code";
+
+        copy.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(pre.innerText);
+            toast("Code copied");
+          } catch {
+            toast("Clipboard unavailable");
+          }
+        });
+
+        holder.appendChild(copy);
+      });
+    }
+
+    body.append(head, content);
+    wrap.append(avatar, body);
+
+    return wrap;
+  }
+
+  /* ---------------- live streaming paint ----------------
+     FIX: the old code re-rendered the whole chat on every streamed
+     chunk. That flickered, reset scroll, and rebuilt copy buttons
+     dozens of times per second. Now we paint one node in place,
+     throttled, and do the final markdown render once at the end. */
+
+  let lastPaint = 0;
+
+  function paintStream(text, force) {
+    const t = performance.now();
+    if (!force && t - lastPaint < 40) return;
+    lastPaint = t;
+
+    const el = document.querySelector('[data-pending="1"] .msg-content');
+    if (!el) return;
+
+    el.innerHTML = '<div class="stream-text">' + esc(text) + "</div>";
+    smartScroll();
+  }
+
+  /* ---------------- config UI ---------------- */
+
+  function setBusy(value) {
+    busy = value;
+    $("sendBtn").textContent = value ? "■" : "↑";
+    $("sendBtn").title = value ? "Stop generation" : "Send message";
+    $("sendBtn").setAttribute("aria-label", value ? "Stop generation" : "Send message");
+    $("modelQuick").disabled = value;
+    $("buildMode").disabled = value;
+    $("chatMode").disabled = value;
+  }
+
+  function updateStatus() {
+    const configured = Boolean(getSetting(STORAGE.key, "").trim());
+
+    $("statusDot").classList.toggle("good", configured);
+    $("statusText").textContent = configured
+      ? "API key configured"
+      : "API key not configured";
+  }
+
+  function populateModels() {
+    $("modelQuick").innerHTML = "";
+
+    PRESETS.forEach((model) => {
+      const option = document.createElement("option");
+      option.value = model.value;
+      option.textContent = model.label;
+      $("modelQuick").appendChild(option);
+    });
+
+    const custom = currentModel();
+
+    if (!PRESETS.some((model) => model.value === custom)) {
+      const option = document.createElement("option");
+      option.value = custom;
+      option.textContent = custom;
+      $("modelQuick").appendChild(option);
+    }
+
+    $("modelQuick").value = custom;
+
+    $("modelOptions").innerHTML = PRESETS
+      .map((model) => '<option value="' + esc(model.value) + '">' + esc(model.label) + "</option>")
+      .join("");
+  }
+
+  function openSettings() {
+    $("apiKey").value = getSetting(STORAGE.key, "");
+    $("modelSelect").value = currentModel();
+    $("systemPrompt").value = getSetting(STORAGE.system, DEFAULT_SYSTEM);
+    $("memoryNotes").value = getSetting(STORAGE.memory, "");
+    $("temperature").value = getSetting(STORAGE.temp, "0.4");
+    $("tempValue").textContent = $("temperature").value;
+    $("maxTokens").value = getSetting(STORAGE.tokens, "4096");
+    $("settingsOverlay").classList.add("open");
+  }
+
+  function closeSettings() {
+    $("settingsOverlay").classList.remove("open");
+  }
+
+  function saveSettings() {
+    const model = $("modelSelect").value.trim() || DEFAULT_MODEL;
+
+    localStorage.setItem(STORAGE.key, $("apiKey").value.trim());
+    localStorage.setItem(STORAGE.model, model);
+    localStorage.setItem(STORAGE.system, $("systemPrompt").value.trim() || DEFAULT_SYSTEM);
+    localStorage.setItem(STORAGE.memory, $("memoryNotes").value.trim());
+    localStorage.setItem(STORAGE.temp, $("temperature").value);
+    localStorage.setItem(STORAGE.tokens, $("maxTokens").value);
+
+    populateModels();
+    updateStatus();
+    closeSettings();
+    toast("Configuration saved");
+  }
+
+  function setMode(isBuild) {
+    buildMode = isBuild;
+
+    $("buildMode").classList.toggle("active", isBuild);
+    $("chatMode").classList.toggle("active", !isBuild);
+    $("modeLabel").textContent = isBuild ? "BUILD MODE" : "CHAT";
+
+    $("prompt").placeholder = isBuild
+      ? "Describe the product you want Forge to plan and implement…"
+      : "Describe what you want to build, fix, or figure out…";
+  }
+
+  /* ---------------- messages ---------------- */
+
+  function addMessage(role, content, pending = false) {
+    const chat = ensureChat();
+
+    const message = {
+      id: makeId(),
+      role,
+      content,
+      createdAt: now()
+    };
+
+    if (pending) message.pending = true;
+
+    chat.messages.push(message);
+    chat.updatedAt = now();
+
+    if (role === "user" && chat.messages.filter((m) => m.role === "user").length === 1) {
+      const flat = content.replace(/\s+/g, " ");
+      chat.title = flat.slice(0, 44) + (flat.length > 44 ? "…" : "");
+    }
+
+    saveChats();
+    renderChat();
+
+    return message;
+  }
+
+  async function sendMessage(text) {
+    if (busy) return;
+
+    const apiKey = getSetting(STORAGE.key, "").trim();
+
+    if (!apiKey) {
+      openSettings();
+      toast("Add your OpenRouter API key to start chatting");
+      return;
+    }
+
+    ensureChat();
+    addMessage("user", text);
+
+    const chat = currentChat();
+
+    // One place for the placeholder, regardless of mode.
+    chat.messages.push({
+      id: makeId(),
+      role: "assistant",
+      content: "",
+      pending: true,
+      createdAt: now()
+    });
+
+    chat.updatedAt = now();
+    saveChats();
+    renderChat();
+
+    await requestModel(chat, buildMode ? BUILD_INSTRUCTIONS : "");
+  }
+
+  async function requestModel(chat, buildInstructions) {
+    const pending = chat.messages[chat.messages.length - 1];
+
+    const notes = getSetting(STORAGE.memory, "").trim();
+
+    const system =
+      getSetting(STORAGE.system, DEFAULT_SYSTEM) +
+      (notes
+        ? "\n\nPERSISTENT USER NOTES (saved by the user; treat as reliable context):\n" + notes
+        : "") +
+      (buildInstructions ? "\n\n" + buildInstructions : "");
+
+    const history = chat.messages
+      .filter((m) => !m.pending && m.content)
+      .map((m) => ({ role: m.role, content: m.content }));
+
+    aborter = new AbortController();
+    setBusy(true);
+
+    let answer = "";
+
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        signal: aborter.signal,
+        headers: {
+          Authorization: "Bearer " + getSetting(STORAGE.key, "").trim(),
+          "Content-Type": "application/json",
+          "HTTP-Referer": location.origin && location.origin !== "null" ? location.origin : "https://forge.local",
+          "X-Title": "Forge AI"
+        },
+        body: JSON.stringify({
+          model: $("modelQuick").value || currentModel(),
+          messages: [{ role: "system", content: system }, ...history],
+          temperature: Number(getSetting(STORAGE.temp, "0.4")),
+          max_tokens: Number(getSetting(STORAGE.tokens, "4096")),
+          stream: true
+        })
+      });
+
+      if (!response.ok) {
+        let detail = "";
+
+        try {
+          const data = await response.json();
+          detail = data?.error?.message || JSON.stringify(data?.error || data);
+        } catch {
+          detail = response.statusText;
+        }
+
+        throw new Error(
+          "OpenRouter error (" + response.status + "): " + (detail || "Request failed")
+        );
+      }
+
+      if (!response.body) {
+        throw new Error("Streaming is not supported in this browser.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let buffer = "";
+      let finished = false;
+
+      while (!finished) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+
+          const payload = trimmed.slice(5).trim();
+
+          if (payload === "[DONE]") {
+            finished = true;
+            break;
+          }
+
+          let data;
+          try {
+            data = JSON.parse(payload);
+          } catch {
+            continue;
+          }
+
+          if (data.error) {
+            throw new Error(data.error.message || "Model stream error");
+          }
+
+          const delta = data.choices?.[0]?.delta?.content || "";
+
+          if (delta) {
+            answer += delta;
+            pending.content = answer;
+            paintStream(answer);
+          }
+        }
+      }
+
+      pending.pending = false;
+      pending.content = answer || "The model returned an empty response.";
+    } catch (error) {
+      pending.pending = false;
+
+      if (error.name === "AbortError") {
+        pending.content = answer
+          ? answer + "\n\n*— generation stopped —*"
+          : "*Generation stopped.*";
+      } else if (answer) {
+        pending.content =
+          answer + "\n\n---\n**Stream interrupted:** " + error.message;
+      } else {
+        pending.content =
+          "**Request failed**\n\n" + error.message +
+          "\n\nCheck your API key, the selected model ID (free models rotate — try another), your OpenRouter credits, and your network connection.";
+      }
+    } finally {
+      chat.updatedAt = now();
+      saveChats();
+      renderChat(false); // don't yank the view if the user scrolled up
+      setBusy(false);
+      aborter = null;
+    }
+  }
+
+  /* ---------------- events ---------------- */
+
+  $("chatForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (busy) {
+      aborter?.abort();
+      return;
+    }
+
+    const text = $("prompt").value.trim();
+    if (!text) return;
+
+    $("prompt").value = "";
+    $("prompt").style.height = "auto";
+
+    sendMessage(text);
+  });
+
+  $("prompt").addEventListener("input", () => {
+    $("prompt").style.height = "auto";
+    $("prompt").style.height = Math.min($("prompt").scrollHeight, 200) + "px";
+  });
+
+  $("prompt").addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      $("chatForm").requestSubmit();
+    }
+  });
+
+  $("newChat").addEventListener("click", newChat);
+  $("openSettings").addEventListener("click", openSettings);
+  $("topSettings").addEventListener("click", openSettings);
+  $("cancelSettings").addEventListener("click", closeSettings);
+  $("saveSettings").addEventListener("click", saveSettings);
+
+  $("settingsOverlay").addEventListener("click", (event) => {
+    if (event.target === $("settingsOverlay")) closeSettings();
+  });
+
+  $("temperature").addEventListener("input", () => {
+    $("tempValue").textContent = $("temperature").value;
+  });
+
+  $("chatMode").addEventListener("click", () => setMode(false));
+  $("buildMode").addEventListener("click", () => setMode(true));
+
+  $("modelQuick").addEventListener("change", () => {
+    localStorage.setItem(STORAGE.model, $("modelQuick").value);
+    $("modelSelect").value = $("modelQuick").value;
+  });
+
+  $("clearPrompt").addEventListener("click", () => {
+    $("prompt").value = "";
+    $("prompt").style.height = "auto";
+    $("prompt").focus();
+  });
+
+  $("menuBtn").addEventListener("click", () => {
+    $("sidebar").classList.toggle("open");
+  });
+
+  document.querySelectorAll("[data-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      $("prompt").value = button.dataset.prompt;
+      $("prompt").focus();
+      $("prompt").dispatchEvent(new Event("input"));
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeSettings();
+      $("sidebar").classList.remove("open");
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      $("prompt").focus();
+    }
+  });
+
+  /* ---------------- init ---------------- */
+
+  // A page reload during generation would otherwise leave a message
+  // stuck on "Generating response…" forever.
+  let repaired = false;
+
+  chats.forEach((chat) => {
+    (chat.messages || []).forEach((message) => {
+      if (message.pending) {
+        message.pending = false;
+        if (!message.content) {
+          message.content = "*Generation was interrupted (the page was reloaded).*";
+        }
+        repaired = true;
+      }
+    });
+  });
+
+  if (repaired) {
+    localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
+  }
+
+  populateModels();
+  updateStatus();
+  renderHistory();
+
+  if (!activeId || !chats.some((chat) => chat.id === activeId)) {
+    activeId = chats[0]?.id || null;
+  }
+
+  renderChat();
+})();
+</script>
+</body>
+</html>
