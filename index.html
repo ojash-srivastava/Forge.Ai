@@ -207,6 +207,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .msg-content li { padding: 3px 0; }
 .msg-content a { color: var(--blue); text-decoration: underline; }
 
+/* Beautiful Table Rendering */
+.msg-content table {
+  width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;
+  display: block; overflow-x: auto;
+}
+.msg-content th, .msg-content td {
+  border: 1px solid #2b394e; padding: 8px 12px; text-align: left;
+}
+.msg-content th { background: #121a27; color: #e8edf7; font-weight: 600; }
+.msg-content tr:nth-child(even) { background: #0e131d; }
+
 .msg-content blockquote {
   border-left: 2px solid var(--accent); margin: 12px 0;
   padding: 2px 13px; color: #91a0b8;
@@ -241,7 +252,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .typing i:nth-child(2) { animation-delay: .15s; }
 .typing i:nth-child(3) { animation-delay: .3s; }
 
-/* append-only stream buffer — no innerHTML churn while streaming */
 .stream-text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .pending-note { color: #71819a; font-size: 11px; }
 
@@ -503,7 +513,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
     <div class="notice">
       Never paste your API key into a public/shared computer. Browser storage is convenient for a personal prototype, but it is not a secure production secret store.<br><br>
-      Free models end with <code>:free</code> and are heavily rate-limited. If you see a 429 error, wait ~60 seconds or switch model. Check openrouter.ai/models?max_price=0 for current free IDs.
+      Free models end with <code>:free</code> and are heavily rate-limited. If you see a 429 or 404 error, wait ~60 seconds or switch to another free model from the dropdown.
     </div>
 
     <div class="modal-actions">
@@ -532,16 +542,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     active: "forge_active_v1"
   };
 
-  const DEFAULT_MODEL = "deepseek/deepseek-chat-v3-0324:free";
+  const DEFAULT_MODEL = "qwen/qwen3.6-plus:free";
 
   const DEFAULT_SYSTEM = `You are Forge AI, a senior software engineer, AI systems architect, product builder, and cybersecurity-aware coding agent. Be direct, precise, practical, and implementation-first. When asked to build software, provide coherent runnable implementations, architecture and setup steps appropriate to the request. Make sensible assumptions when details are missing and ask only essential questions. For multi-file projects, clearly label each file and its complete contents. Distinguish generated code from code that has actually been executed or tested; never claim to have run, tested, deployed, or verified something unless a real tool did so. Be honest about model/tool limitations. Preserve existing work and prefer targeted fixes. Support authorized defensive security and safe labs; do not assist credential theft, malware deployment, or unauthorized compromise.`;
 
   const BUILD_INSTRUCTIONS = `You are now in BUILD MODE. Treat the user's request as a product implementation task. Return: (1) concise requirements and assumptions, (2) architecture and file tree, (3) complete code for every necessary file, (4) install/run instructions, (5) test checklist and known limitations. For large tasks, prioritize a complete runnable MVP over incomplete breadth. Never claim files were created or code executed in this browser; provide the code and steps.`;
 
   const PRESETS = [
-    { label: "DeepSeek Chat — free", value: "deepseek/deepseek-chat-v3-0324:free" },
+    { label: "Qwen 3.6 Plus — free", value: "qwen/qwen3.6-plus:free" },
+    { label: "Qwen 3 Coder — free", value: "qwen/qwen3-coder:free" },
+    { label: "DeepSeek R1 — free", value: "deepseek/deepseek-r1:free" },
     { label: "Llama 3.3 70B — free", value: "meta-llama/llama-3.3-70b-instruct:free" },
-    { label: "Qwen 2.5 Coder 32B — free", value: "qwen/qwen-2.5-coder-32b-instruct:free" },
     { label: "Gemini 2.0 Flash — free", value: "google/gemini-2.0-flash-exp:free" },
     { label: "Mistral Small 3.2 — free", value: "mistralai/mistral-small-3.2-24b-instruct:free" },
     { label: "OpenAI GPT-4o mini", value: "openai/gpt-4o-mini" },
@@ -549,15 +560,14 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     { label: "Anthropic Claude Sonnet 4", value: "anthropic/claude-sonnet-4" },
     { label: "Google Gemini 2.5 Flash", value: "google/gemini-2.5-flash" },
     { label: "DeepSeek Chat — paid", value: "deepseek/deepseek-chat" },
-    { label: "Qwen3 Coder", value: "qwen/qwen3-coder" }
+    { label: "Qwen3 Coder — paid", value: "qwen/qwen3-coder" }
   ];
 
-  // Limits — these are the anti-freeze guards.
   const MAX_STORED_CHATS   = 40;
-  const MAX_HISTORY_MSGS   = 16;      // messages sent to the API
-  const MAX_HISTORY_CHARS  = 24000;   // total chars sent to the API
-  const IDLE_TIMEOUT_MS    = 45000;   // no data for this long = hang
-  const HARD_TIMEOUT_MS    = 180000;  // absolute request cap
+  const MAX_HISTORY_MSGS   = 16;
+  const MAX_HISTORY_CHARS  = 24000;
+  const IDLE_TIMEOUT_MS    = 45000;
+  const HARD_TIMEOUT_MS    = 180000;
 
   let chats = loadJSON(STORAGE.chats, []);
   let activeId = localStorage.getItem(STORAGE.active) || null;
@@ -603,11 +613,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     return getSetting(STORAGE.model, DEFAULT_MODEL);
   }
 
-  /* ---------------- storage (quota-safe) ----------------
-     FIX: a QuotaExceededError here used to throw out of the render
-     path, leaving the send button stuck on ■ and the app frozen.
-     Now we prune old chats and retry, and never throw. */
-
   function saveChats() {
     if (chats.length > MAX_STORED_CHATS) {
       chats = chats
@@ -627,7 +632,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
         renderHistory();
         return true;
       } catch (error) {
-        // Drop the oldest conversation and try again.
         if (chats.length > 1) {
           const oldest = chats
             .slice()
@@ -641,7 +645,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
           continue;
         }
 
-        // Only one conversation left and it still won't fit.
         toast("Storage full — could not save. Delete old chats or clear site data.");
         renderHistory();
         return false;
@@ -685,8 +688,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     if (!currentChat()) newChat();
     return currentChat();
   }
-
-  /* ---------------- rendering ---------------- */
 
   function renderHistory() {
     const root = $("history");
@@ -759,7 +760,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     list.hidden = false;
     list.innerHTML = "";
 
-    // FIX: title was never updated when you switched conversations.
     $("topTitle").textContent = chat.title;
 
     chat.messages.forEach((message) => {
@@ -767,8 +767,10 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     });
 
     if (forceScroll) {
-      const c = $("content");
-      c.scrollTop = c.scrollHeight;
+      requestAnimationFrame(() => {
+        const c = $("content");
+        c.scrollTop = c.scrollHeight;
+      });
     } else {
       smartScroll();
     }
@@ -788,74 +790,76 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   }
 
   function makeMessage(message) {
-    const wrap = document.createElement("article");
-    wrap.className = "message " + message.role;
-    if (message.pending) wrap.dataset.pending = "1";
+    try {
+      const wrap = document.createElement("article");
+      wrap.className = "message " + message.role;
+      if (message.pending) wrap.dataset.pending = "1";
 
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
-    avatar.textContent = message.role === "user" ? "YOU" : "F";
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = message.role === "user" ? "YOU" : "F";
 
-    const body = document.createElement("div");
-    body.className = "msg-body";
+      const body = document.createElement("div");
+      body.className = "msg-body";
 
-    const head = document.createElement("div");
-    head.className = "msg-head";
-    head.innerHTML =
-      (message.role === "user" ? "You" : "Forge AI") +
-      " <small>" + (message.role === "user" ? "INPUT" : "RESPONSE") + "</small>";
+      const head = document.createElement("div");
+      head.className = "msg-head";
+      head.innerHTML =
+        (message.role === "user" ? "You" : "Forge AI") +
+        " <small>" + (message.role === "user" ? "INPUT" : "RESPONSE") + "</small>";
 
-    const content = document.createElement("div");
-    content.className = "msg-content";
+      const content = document.createElement("div");
+      content.className = "msg-content";
 
-    if (message.pending) {
-      content.innerHTML =
-        '<div class="typing"><i></i><i></i><i></i></div>' +
-        '<div class="pending-note">Generating response…</div>';
-    } else {
-      content.innerHTML = markdownHTML(message.content || "");
+      if (message.pending) {
+        content.innerHTML =
+          '<div class="typing"><i></i><i></i><i></i></div>' +
+          '<div class="pending-note">Generating response…</div>';
+      } else {
+        content.innerHTML = markdownHTML(message.content || "");
 
-      content.querySelectorAll("a").forEach((a) => {
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-      });
-
-      content.querySelectorAll("pre").forEach((pre) => {
-        const holder = document.createElement("div");
-        holder.className = "codewrap";
-
-        pre.parentNode.insertBefore(holder, pre);
-        holder.appendChild(pre);
-
-        const copy = document.createElement("button");
-        copy.type = "button";
-        copy.className = "copycode";
-        copy.textContent = "Copy code";
-
-        copy.addEventListener("click", async () => {
-          try {
-            await navigator.clipboard.writeText(pre.innerText);
-            toast("Code copied");
-          } catch {
-            toast("Clipboard unavailable");
-          }
+        content.querySelectorAll("a").forEach((a) => {
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
         });
 
-        holder.appendChild(copy);
-      });
+        content.querySelectorAll("pre").forEach((pre) => {
+          const holder = document.createElement("div");
+          holder.className = "codewrap";
+
+          pre.parentNode.insertBefore(holder, pre);
+          holder.appendChild(pre);
+
+          const copy = document.createElement("button");
+          copy.type = "button";
+          copy.className = "copycode";
+          copy.textContent = "Copy code";
+
+          copy.addEventListener("click", async () => {
+            try {
+              await navigator.clipboard.writeText(pre.innerText);
+              toast("Code copied");
+            } catch {
+              toast("Clipboard unavailable");
+            }
+          });
+
+          holder.appendChild(copy);
+        });
+      }
+
+      body.append(head, content);
+      wrap.append(avatar, body);
+
+      return wrap;
+    } catch (e) {
+      console.error("Message render error:", e);
+      const fallback = document.createElement("article");
+      fallback.className = "message " + message.role;
+      fallback.innerHTML = '<div style="color:#ff8a8a;font-size:12px">Failed to render this message. Check console.</div>';
+      return fallback;
     }
-
-    body.append(head, content);
-    wrap.append(avatar, body);
-
-    return wrap;
   }
-
-  /* ---------------- streaming ----------------
-     FIX: instead of rebuilding the whole answer as HTML on every
-     chunk (O(n^2) escaping + forced reflow), we append characters
-     to a single Text node with appendData() — O(1) per token, no
-     HTML parsing, no sanitizer, no layout thrash. */
 
   let streamTextNode = null;
   let scrollQueued = false;
@@ -887,8 +891,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       });
     }
   }
-
-  /* ---------------- config UI ---------------- */
 
   function setBusy(value) {
     busy = value;
@@ -978,8 +980,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       : "Describe what you want to build, fix, or figure out…";
   }
 
-  /* ---------------- messages ---------------- */
-
   function addMessage(role, content, pending = false) {
     const chat = ensureChat();
 
@@ -1031,7 +1031,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     await requestModel(chat, buildMode ? BUILD_INSTRUCTIONS : "");
   }
 
-  /* Windowed history: keep the request small so free models stay fast. */
   function buildHistory(chat) {
     let msgs = chat.messages
       .filter((m) => !m.pending && m.content)
@@ -1048,7 +1047,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       msgs.shift();
     }
 
-    // The API expects the first non-system message to be from the user.
     while (msgs.length && msgs[0].role !== "user") msgs.shift();
 
     return msgs;
@@ -1125,7 +1123,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
           detail = response.statusText;
         }
 
-        // Free-tier rate limits deserve their own message.
         if (response.status === 429) {
           throw new Error(
             "RATE_LIMIT: this free model is rate-limited right now. " +
@@ -1202,7 +1199,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
         }
       }
 
-      // Some providers ignore stream:true and return one JSON object.
       if (!answer && buffer.trim()) {
         try {
           const json = JSON.parse(buffer.trim());
@@ -1251,18 +1247,19 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       pending.pending = false;
 
       chat.updatedAt = now();
+      
+      try {
+        saveChats();
+        renderChat(false);
+      } catch (e) {
+        console.error("Post-stream UI error:", e);
+      }
 
-      // FIX: saveChats can no longer throw, so this always completes
-      // and the button never stays stuck.
-      saveChats();
-      renderChat(false);
       streamTextNode = null;
       setBusy(false);
       aborter = null;
     }
   }
-
-  /* ---------------- events ---------------- */
 
   $("chatForm").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -1345,9 +1342,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     }
   });
 
-  /* ---------------- init ---------------- */
-
-  // Un-stick any message that was mid-generation when the page reloaded.
   let repaired = false;
 
   chats.forEach((chat) => {
