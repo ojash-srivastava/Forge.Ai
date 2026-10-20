@@ -25,9 +25,6 @@
 }
 
 * { box-sizing: border-box; }
-
-/* FIX: without this, [hidden] never hides .chat-list because the class
-   sets display:flex and wins over the browser's [hidden] rule. */
 [hidden] { display: none !important; }
 
 body {
@@ -57,634 +54,271 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   min-width: 0;
 }
 
-.brand {
-  padding: 23px 20px 20px;
-  display: flex;
-  gap: 11px;
-  align-items: center;
-}
+.brand { padding: 23px 20px 20px; display: flex; gap: 11px; align-items: center; }
 
 .logo {
-  width: 35px;
-  height: 35px;
-  border-radius: 11px;
+  width: 35px; height: 35px; border-radius: 11px;
   background: linear-gradient(135deg, #72f0bd, #55a8ff);
-  display: grid;
-  place-items: center;
-  color: #07110f;
-  font-weight: 900;
-  font-size: 19px;
+  display: grid; place-items: center;
+  color: #07110f; font-weight: 900; font-size: 19px;
   box-shadow: 0 0 24px #72f0bd20;
 }
 
-.brandname {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: .08em;
-}
+.brandname { font-size: 16px; font-weight: 800; letter-spacing: .08em; }
+.tagline { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: .12em; }
 
-.tagline {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 3px;
-  letter-spacing: .12em;
-}
-
-.side-actions {
-  padding: 0 13px 17px;
-  display: grid;
-  gap: 8px;
-}
+.side-actions { padding: 0 13px 17px; display: grid; gap: 8px; }
 
 .primary, .secondary, .iconbtn, .modebtn, .chip {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  transition: .18s;
+  border: 1px solid var(--line); border-radius: 10px; transition: .18s;
 }
 
-.primary {
-  background: var(--accent);
-  color: #07120f;
-  font-weight: 800;
-  padding: 11px 13px;
-}
-
+.primary { background: var(--accent); color: #07120f; font-weight: 800; padding: 11px 13px; }
 .primary:hover { filter: brightness(1.07); }
-
-.secondary {
-  background: var(--panel);
-  color: var(--text);
-  padding: 10px 13px;
-  text-align: left;
-}
-
+.secondary { background: var(--panel); color: var(--text); padding: 10px 13px; text-align: left; }
 .secondary:hover, .iconbtn:hover, .modebtn:hover, .chip:hover {
-  border-color: #49627b;
-  background: var(--panel2);
+  border-color: #49627b; background: var(--panel2);
 }
 
 .section-label {
-  padding: 10px 19px 8px;
-  color: #68768e;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .15em;
-  text-transform: uppercase;
+  padding: 10px 19px 8px; color: #68768e; font-size: 10px;
+  font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
 }
 
-.history {
-  padding: 0 9px;
-  overflow: auto;
-  flex: 1;
-}
+.history { padding: 0 9px; overflow: auto; flex: 1; }
 
 .history-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  text-align: left;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #aab5c8;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 12px;
-  margin: 2px 0;
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  text-align: left; border: 1px solid transparent; background: transparent;
+  color: #aab5c8; border-radius: 8px; padding: 10px; font-size: 12px; margin: 2px 0;
 }
 
 .history-item.active, .history-item:hover {
-  background: #121a27;
-  border-color: #202a3b;
-  color: #fff;
+  background: #121a27; border-color: #202a3b; color: #fff;
 }
 
 .history-item .hi-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1; min-width: 0;
 }
 
-.history-item .hi-del {
-  flex: none;
-  padding: 0 3px;
-  border-radius: 5px;
-  color: #71819a;
-  line-height: 1;
-}
-
+.history-item .hi-del { flex: none; padding: 0 3px; border-radius: 5px; color: #71819a; line-height: 1; }
 .history-item .hi-del:hover { color: #ff8a8a; }
 
-.side-footer {
-  border-top: 1px solid var(--line);
-  padding: 13px;
-  display: grid;
-  gap: 8px;
-}
+.side-footer { border-top: 1px solid var(--line); padding: 13px; display: grid; gap: 8px; }
 
 .statusline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--muted);
-  padding: 4px 5px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--muted); padding: 4px 5px;
 }
 
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f0b35d;
-}
-
-.dot.good {
-  background: var(--accent);
-  box-shadow: 0 0 10px #72f0bd66;
-}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #f0b35d; }
+.dot.good { background: var(--accent); box-shadow: 0 0 10px #72f0bd66; }
 
 .workspace {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
+  min-width: 0; display: flex; flex-direction: column;
   background: radial-gradient(ellipse at 50% -20%, #1c344520, transparent 50%), var(--bg);
 }
 
 .topbar {
-  height: 65px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 25px;
-  gap: 15px;
+  height: 65px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 25px; gap: 15px;
 }
 
-.top-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
+.top-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.eyebrow { font-size: 10px; letter-spacing: .15em; color: var(--accent); font-weight: 700; }
+.top-title { font-size: 13px; color: #b7c3d8; margin-top: 3px; }
+.top-right { display: flex; gap: 8px; align-items: center; }
 
-.eyebrow {
-  font-size: 10px;
-  letter-spacing: .15em;
-  color: var(--accent);
-  font-weight: 700;
-}
+.modebtn { background: transparent; color: var(--muted); font-size: 11px; padding: 8px 11px; }
+.modebtn.active { border-color: #72f0bd65; color: var(--accent); background: #72f0bd0c; }
+.iconbtn { background: var(--panel); color: #b6c3d7; padding: 8px 10px; font-size: 12px; }
 
-.top-title {
-  font-size: 13px;
-  color: #b7c3d8;
-  margin-top: 3px;
-}
+.content { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
 
-.top-right {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.modebtn {
-  background: transparent;
-  color: var(--muted);
-  font-size: 11px;
-  padding: 8px 11px;
-}
-
-.modebtn.active {
-  border-color: #72f0bd65;
-  color: var(--accent);
-  background: #72f0bd0c;
-}
-
-.iconbtn {
-  background: var(--panel);
-  color: #b6c3d7;
-  padding: 8px 10px;
-  font-size: 12px;
-}
-
-.content {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.welcome {
-  margin: auto;
-  width: min(790px, 100%);
-  padding: 50px 25px 60px;
-}
+.welcome { margin: auto; width: min(790px, 100%); padding: 50px 25px 60px; }
 
 .hero-mark {
-  width: 54px;
-  height: 54px;
-  border: 1px solid #72f0bd48;
-  border-radius: 17px;
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-  font-size: 27px;
-  background: #72f0bd0b;
-  margin-bottom: 24px;
-  box-shadow: 0 0 45px #72f0bd0c;
+  width: 54px; height: 54px; border: 1px solid #72f0bd48; border-radius: 17px;
+  display: grid; place-items: center; color: var(--accent); font-size: 27px;
+  background: #72f0bd0b; margin-bottom: 24px; box-shadow: 0 0 45px #72f0bd0c;
 }
 
-.hero-kicker {
-  font-size: 11px;
-  letter-spacing: .18em;
-  color: var(--accent);
-  font-weight: 700;
-}
+.hero-kicker { font-size: 11px; letter-spacing: .18em; color: var(--accent); font-weight: 700; }
 
 .hero h1 {
-  font-size: clamp(34px, 5vw, 55px);
-  line-height: 1.08;
-  letter-spacing: -.055em;
-  margin: 13px 0 16px;
-  font-weight: 800;
+  font-size: clamp(34px, 5vw, 55px); line-height: 1.08;
+  letter-spacing: -.055em; margin: 13px 0 16px; font-weight: 800;
 }
 
 .gradient {
   background: linear-gradient(90deg, #e9f4ff, #72f0bd 60%, #6ea8ff);
-  color: transparent;
-  background-clip: text;
+  color: transparent; background-clip: text;
 }
 
-.hero p {
-  max-width: 580px;
-  color: #91a0b8;
-  line-height: 1.75;
-  font-size: 14px;
-}
+.hero p { max-width: 580px; color: #91a0b8; line-height: 1.75; font-size: 14px; }
 
-.chips {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 32px;
-}
+.chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 32px; }
 
-.chip {
-  text-align: left;
-  background: #0e131d;
-  padding: 15px;
-  color: #dbe4f2;
-  min-height: 80px;
-}
-
-.chip strong {
-  display: block;
-  font-size: 12px;
-  margin-bottom: 7px;
-}
-
-.chip span {
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.5;
-}
+.chip { text-align: left; background: #0e131d; padding: 15px; color: #dbe4f2; min-height: 80px; }
+.chip strong { display: block; font-size: 12px; margin-bottom: 7px; }
+.chip span { font-size: 11px; color: var(--muted); line-height: 1.5; }
 
 .chat-list {
-  width: min(900px, 100%);
-  margin: 0 auto;
-  padding: 25px 25px 35px;
-  display: flex;
-  flex-direction: column;
-  gap: 23px;
+  width: min(900px, 100%); margin: 0 auto; padding: 25px 25px 35px;
+  display: flex; flex-direction: column; gap: 23px;
 }
 
 .message {
-  display: grid;
-  grid-template-columns: 31px minmax(0, 1fr);
-  gap: 13px;
-  animation: appear .2s ease;
+  display: grid; grid-template-columns: 31px minmax(0, 1fr);
+  gap: 13px; animation: appear .2s ease;
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 800;
-  background: #152033;
-  border: 1px solid #26364d;
-  color: #c6d5e9;
+  width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+  font-size: 12px; font-weight: 800; background: #152033;
+  border: 1px solid #26364d; color: #c6d5e9;
 }
 
-.message.assistant .avatar {
-  background: #72f0bd13;
-  color: var(--accent);
-  border-color: #72f0bd40;
-}
-
-.msg-body {
-  min-width: 0;
-  padding-top: 4px;
-}
+.message.assistant .avatar { background: #72f0bd13; color: var(--accent); border-color: #72f0bd40; }
+.msg-body { min-width: 0; padding-top: 4px; }
 
 .msg-head {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 11px;
-  color: #d4deed;
-  font-weight: 700;
+  display: flex; gap: 10px; align-items: center; margin-bottom: 10px;
+  font-size: 11px; color: #d4deed; font-weight: 700;
 }
 
-.msg-head small {
-  font-size: 10px;
-  color: #6d7d95;
-  font-weight: 400;
-}
+.msg-head small { font-size: 10px; color: #6d7d95; font-weight: 400; }
 
 .msg-content {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #c2ccdc;
-  overflow-wrap: anywhere;
+  font-size: 13px; line-height: 1.8; color: #c2ccdc; overflow-wrap: anywhere;
 }
 
 .msg-content h1, .msg-content h2, .msg-content h3 {
-  color: #f1f5fb;
-  line-height: 1.3;
-  margin: 20px 0 10px;
+  color: #f1f5fb; line-height: 1.3; margin: 20px 0 10px;
 }
 
 .msg-content h1 { font-size: 22px; }
 .msg-content h2 { font-size: 18px; }
 .msg-content h3 { font-size: 15px; }
 .msg-content p { margin: 9px 0; }
-
-.msg-content ul, .msg-content ol {
-  padding-left: 23px;
-  margin: 9px 0;
-}
-
+.msg-content ul, .msg-content ol { padding-left: 23px; margin: 9px 0; }
 .msg-content li { padding: 3px 0; }
-
-.msg-content a {
-  color: var(--blue);
-  text-decoration: underline;
-}
+.msg-content a { color: var(--blue); text-decoration: underline; }
 
 .msg-content blockquote {
-  border-left: 2px solid var(--accent);
-  margin: 12px 0;
-  padding: 2px 13px;
-  color: #91a0b8;
+  border-left: 2px solid var(--accent); margin: 12px 0;
+  padding: 2px 13px; color: #91a0b8;
 }
 
 .msg-content pre {
-  position: relative;
-  white-space: pre;
-  overflow: auto;
-  background: #070a10;
-  border: 1px solid #243044;
-  border-radius: 10px;
-  padding: 17px;
-  margin: 13px 0;
-  font-size: 11px;
-  line-height: 1.65;
-  color: #cce7e0;
+  position: relative; white-space: pre; overflow: auto;
+  background: #070a10; border: 1px solid #243044; border-radius: 10px;
+  padding: 17px; margin: 13px 0; font-size: 11px; line-height: 1.65; color: #cce7e0;
 }
 
 .msg-content :not(pre) > code {
-  background: #1b2636;
-  padding: 2px 5px;
-  border-radius: 4px;
-  color: #8feac5;
-  font-size: .9em;
+  background: #1b2636; padding: 2px 5px; border-radius: 4px;
+  color: #8feac5; font-size: .9em;
 }
 
 .codewrap { position: relative; }
 
 .copycode {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  background: #1a2433;
-  color: #aebcd0;
-  border: 1px solid #334258;
-  border-radius: 6px;
-  padding: 5px 8px;
-  font-size: 10px;
-  z-index: 1;
+  position: absolute; right: 8px; top: 8px;
+  background: #1a2433; color: #aebcd0; border: 1px solid #334258;
+  border-radius: 6px; padding: 5px 8px; font-size: 10px; z-index: 1;
 }
 
-.typing {
-  display: flex;
-  gap: 5px;
-  padding: 10px 0;
-}
+.typing { display: flex; gap: 5px; padding: 10px 0; }
 
 .typing i {
-  width: 5px;
-  height: 5px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: pulse 1s infinite;
+  width: 5px; height: 5px; background: var(--accent);
+  border-radius: 50%; animation: pulse 1s infinite;
 }
 
 .typing i:nth-child(2) { animation-delay: .15s; }
 .typing i:nth-child(3) { animation-delay: .3s; }
 
-/* Plain-text view used while a response is streaming in. */
-.stream-text {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
+/* append-only stream buffer — no innerHTML churn while streaming */
+.stream-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.pending-note { color: #71819a; font-size: 11px; }
 
-.pending-note {
-  color: #71819a;
-  font-size: 11px;
-}
-
-.composer-wrap {
-  padding: 12px 22px 17px;
-  border-top: 1px solid var(--line);
-  background: #090d14ee;
-}
+.composer-wrap { padding: 12px 22px 17px; border-top: 1px solid var(--line); background: #090d14ee; }
 
 .composer {
-  width: min(900px, 100%);
-  margin: 0 auto;
-  border: 1px solid #2b394e;
-  background: #0d131e;
-  border-radius: 15px;
-  padding: 12px 13px 10px;
-  box-shadow: 0 12px 50px #0003;
+  width: min(900px, 100%); margin: 0 auto;
+  border: 1px solid #2b394e; background: #0d131e;
+  border-radius: 15px; padding: 12px 13px 10px; box-shadow: 0 12px 50px #0003;
 }
 
-.composer:focus-within {
-  border-color: #72f0bd78;
-  box-shadow: 0 0 0 3px #72f0bd0a;
-}
+.composer:focus-within { border-color: #72f0bd78; box-shadow: 0 0 0 3px #72f0bd0a; }
 
 .prompt {
-  width: 100%;
-  resize: none;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: #e8edf7;
-  font-size: 13px;
-  line-height: 1.65;
-  min-height: 48px;
-  max-height: 200px;
-  padding: 5px 4px;
+  width: 100%; resize: none; border: 0; outline: 0; background: transparent;
+  color: #e8edf7; font-size: 13px; line-height: 1.65;
+  min-height: 48px; max-height: 200px; padding: 5px 4px;
 }
 
 .prompt::placeholder { color: #62718a; }
 
 .composer-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 8px; margin-top: 6px;
 }
 
-.composer-tools {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.tool-label {
-  font-size: 10px;
-  color: #6f7f98;
-}
+.composer-tools { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+.tool-label { font-size: 10px; color: #6f7f98; }
 
 .select-mini {
-  background: #111a28;
-  color: #aebbd0;
-  border: 1px solid #29374c;
-  border-radius: 7px;
-  padding: 6px 8px;
-  font-size: 10px;
-  max-width: 190px;
+  background: #111a28; color: #aebbd0; border: 1px solid #29374c;
+  border-radius: 7px; padding: 6px 8px; font-size: 10px; max-width: 190px;
 }
 
 .send {
-  width: 36px;
-  height: 34px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--accent);
-  color: #07120f;
-  font-weight: 900;
-  font-size: 17px;
+  width: 36px; height: 34px; border: 0; border-radius: 9px;
+  background: var(--accent); color: #07120f; font-weight: 900; font-size: 17px;
 }
 
-.hint {
-  text-align: center;
-  color: #55637a;
-  font-size: 10px;
-  margin: 9px 0 0;
-}
+.hint { text-align: center; color: #55637a; font-size: 10px; margin: 9px 0 0; }
 
 .overlay {
-  position: fixed;
-  inset: 0;
-  background: #0009;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 20;
+  position: fixed; inset: 0; background: #0009; display: none;
+  align-items: center; justify-content: center; padding: 20px; z-index: 20;
 }
 
 .overlay.open { display: flex; }
 
 .modal {
-  width: min(520px, 100%);
-  max-height: 90dvh;
-  overflow: auto;
-  border: 1px solid #2a384d;
-  background: #0d131e;
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 25px 90px #0009;
+  width: min(520px, 100%); max-height: 90dvh; overflow: auto;
+  border: 1px solid #2a384d; background: #0d131e; border-radius: 16px;
+  padding: 22px; box-shadow: 0 25px 90px #0009;
 }
 
-.modal h2 {
-  font-size: 18px;
-  margin: 0 0 6px;
-}
-
-.modal p {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.field {
-  display: grid;
-  gap: 7px;
-  margin: 17px 0;
-}
-
-.field label {
-  font-size: 11px;
-  color: #b6c4d8;
-}
+.modal h2 { font-size: 18px; margin: 0 0 6px; }
+.modal p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.field { display: grid; gap: 7px; margin: 17px 0; }
+.field label { font-size: 11px; color: #b6c4d8; }
 
 .field input, .field select, .field textarea {
-  width: 100%;
-  border: 1px solid #2b394e;
-  background: #080d15;
-  border-radius: 9px;
-  padding: 10px;
-  color: #e8edf7;
-  font-size: 12px;
-  outline: none;
+  width: 100%; border: 1px solid #2b394e; background: #080d15;
+  border-radius: 9px; padding: 10px; color: #e8edf7; font-size: 12px; outline: none;
 }
 
-.field input:focus, .field select:focus, .field textarea:focus {
-  border-color: #72f0bd88;
-}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #72f0bd88; }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 22px;
-}
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
 
 .notice {
-  border: 1px solid #66522a;
-  background: #241d10;
-  color: #e8c987;
-  padding: 10px 12px;
-  border-radius: 9px;
-  font-size: 11px;
-  line-height: 1.6;
-  margin-top: 12px;
+  border: 1px solid #66522a; background: #241d10; color: #e8c987;
+  padding: 10px 12px; border-radius: 9px; font-size: 11px; line-height: 1.6; margin-top: 12px;
 }
 
 .toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #172334;
-  border: 1px solid #33445b;
-  border-radius: 9px;
-  padding: 10px 15px;
-  font-size: 12px;
-  z-index: 50;
-  display: none;
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #172334; border: 1px solid #33445b; border-radius: 9px;
+  padding: 10px 15px; font-size: 12px; z-index: 50; display: none;
 }
 
 .toast.show { display: block; }
@@ -704,12 +338,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   .shell { grid-template-columns: 1fr; }
 
   .sidebar {
-    position: fixed;
-    z-index: 15;
-    inset: 0 auto 0 0;
-    width: 270px;
-    transform: translateX(-101%);
-    transition: transform .2s;
+    position: fixed; z-index: 15; inset: 0 auto 0 0; width: 270px;
+    transform: translateX(-101%); transition: transform .2s;
     box-shadow: 20px 0 60px #0005;
   }
 
@@ -865,7 +495,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     <div class="field">
       <label for="maxTokens">Maximum response tokens</label>
       <select id="maxTokens">
-        <option value="2048">2,048 — faster</option>
+        <option value="2048">2,048 — fastest / most reliable on free models</option>
         <option value="4096" selected>4,096 — balanced</option>
         <option value="8192">8,192 — longer code</option>
       </select>
@@ -873,7 +503,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
     <div class="notice">
       Never paste your API key into a public/shared computer. Browser storage is convenient for a personal prototype, but it is not a secure production secret store.<br><br>
-      Tip: free model IDs end with <code>:free</code>. Availability rotates — if one stops working, check openrouter.ai/models?max_price=0 and paste a new ID in the Model field.
+      Free models end with <code>:free</code> and are heavily rate-limited. If you see a 429 error, wait ~60 seconds or switch model. Check openrouter.ai/models?max_price=0 for current free IDs.
     </div>
 
     <div class="modal-actions">
@@ -902,8 +532,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     active: "forge_active_v1"
   };
 
-  /* Default is a free OpenRouter model. If it disappears, pick another
-     ":free" model from the dropdown (or paste any model ID in settings). */
   const DEFAULT_MODEL = "deepseek/deepseek-chat-v3-0324:free";
 
   const DEFAULT_SYSTEM = `You are Forge AI, a senior software engineer, AI systems architect, product builder, and cybersecurity-aware coding agent. Be direct, precise, practical, and implementation-first. When asked to build software, provide coherent runnable implementations, architecture and setup steps appropriate to the request. Make sensible assumptions when details are missing and ask only essential questions. For multi-file projects, clearly label each file and its complete contents. Distinguish generated code from code that has actually been executed or tested; never claim to have run, tested, deployed, or verified something unless a real tool did so. Be honest about model/tool limitations. Preserve existing work and prefer targeted fixes. Support authorized defensive security and safe labs; do not assist credential theft, malware deployment, or unauthorized compromise.`;
@@ -923,6 +551,13 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     { label: "DeepSeek Chat — paid", value: "deepseek/deepseek-chat" },
     { label: "Qwen3 Coder", value: "qwen/qwen3-coder" }
   ];
+
+  // Limits — these are the anti-freeze guards.
+  const MAX_STORED_CHATS   = 40;
+  const MAX_HISTORY_MSGS   = 16;      // messages sent to the API
+  const MAX_HISTORY_CHARS  = 24000;   // total chars sent to the API
+  const IDLE_TIMEOUT_MS    = 45000;   // no data for this long = hang
+  const HARD_TIMEOUT_MS    = 180000;  // absolute request cap
 
   let chats = loadJSON(STORAGE.chats, []);
   let activeId = localStorage.getItem(STORAGE.active) || null;
@@ -947,11 +582,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
   function esc(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     }[c]));
   }
 
@@ -960,7 +591,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     el.textContent = message;
     el.classList.add("show");
     clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => el.classList.remove("show"), 2600);
+    toast.timer = setTimeout(() => el.classList.remove("show"), 3000);
   }
 
   function getSetting(key, fallback) {
@@ -972,12 +603,53 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     return getSetting(STORAGE.model, DEFAULT_MODEL);
   }
 
-  /* ---------------- chat storage ---------------- */
+  /* ---------------- storage (quota-safe) ----------------
+     FIX: a QuotaExceededError here used to throw out of the render
+     path, leaving the send button stuck on ■ and the app frozen.
+     Now we prune old chats and retry, and never throw. */
 
   function saveChats() {
-    localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
-    localStorage.setItem(STORAGE.active, activeId || "");
+    if (chats.length > MAX_STORED_CHATS) {
+      chats = chats
+        .slice()
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+        .slice(0, MAX_STORED_CHATS);
+
+      if (activeId && !chats.some((c) => c.id === activeId)) {
+        activeId = chats[0]?.id || null;
+      }
+    }
+
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
+        localStorage.setItem(STORAGE.active, activeId || "");
+        renderHistory();
+        return true;
+      } catch (error) {
+        // Drop the oldest conversation and try again.
+        if (chats.length > 1) {
+          const oldest = chats
+            .slice()
+            .sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))[0];
+
+          chats = chats.filter((c) => c.id !== oldest.id);
+
+          if (activeId === oldest.id) activeId = chats[0]?.id || null;
+
+          toast("Storage full — removed an old conversation");
+          continue;
+        }
+
+        // Only one conversation left and it still won't fit.
+        toast("Storage full — could not save. Delete old chats or clear site data.");
+        renderHistory();
+        return false;
+      }
+    }
+
     renderHistory();
+    return false;
   }
 
   function currentChat() {
@@ -987,7 +659,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   function newChat() {
     const existing = currentChat();
 
-    // Don't pile up empty conversations — reuse the blank one.
     if (existing && existing.messages.length === 0) {
       $("prompt").focus();
       $("sidebar").classList.remove("open");
@@ -1041,17 +712,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
           '<span class="hi-del" data-del="1" title="Delete conversation">⋯</span>';
 
         button.addEventListener("click", (event) => {
-          // Robust delete detection — no fragile :last-child selector.
           if (event.target.closest("[data-del]")) {
             event.stopPropagation();
 
             if (confirm("Delete this conversation?")) {
               chats = chats.filter((c) => c.id !== chat.id);
-
-              if (activeId === chat.id) {
-                activeId = chats[0]?.id || null;
-              }
-
+              if (activeId === chat.id) activeId = chats[0]?.id || null;
               saveChats();
               renderChat();
             }
@@ -1092,13 +758,14 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     welcome.hidden = true;
     list.hidden = false;
     list.innerHTML = "";
+
+    // FIX: title was never updated when you switched conversations.
     $("topTitle").textContent = chat.title;
 
     chat.messages.forEach((message) => {
       list.appendChild(makeMessage(message));
     });
 
-    // FIX: the scroll container is #content, not #chatList.
     if (forceScroll) {
       const c = $("content");
       c.scrollTop = c.scrollHeight;
@@ -1184,24 +851,41 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     return wrap;
   }
 
-  /* ---------------- live streaming paint ----------------
-     FIX: the old code re-rendered the whole chat on every streamed
-     chunk. That flickered, reset scroll, and rebuilt copy buttons
-     dozens of times per second. Now we paint one node in place,
-     throttled, and do the final markdown render once at the end. */
+  /* ---------------- streaming ----------------
+     FIX: instead of rebuilding the whole answer as HTML on every
+     chunk (O(n^2) escaping + forced reflow), we append characters
+     to a single Text node with appendData() — O(1) per token, no
+     HTML parsing, no sanitizer, no layout thrash. */
 
-  let lastPaint = 0;
+  let streamTextNode = null;
+  let scrollQueued = false;
 
-  function paintStream(text, force) {
-    const t = performance.now();
-    if (!force && t - lastPaint < 40) return;
-    lastPaint = t;
+  function beginStream() {
+    const host = document.querySelector('[data-pending="1"] .msg-content');
+    if (!host) return false;
 
-    const el = document.querySelector('[data-pending="1"] .msg-content');
-    if (!el) return;
+    host.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "stream-text";
+    streamTextNode = document.createTextNode("");
+    div.appendChild(streamTextNode);
+    host.appendChild(div);
 
-    el.innerHTML = '<div class="stream-text">' + esc(text) + "</div>";
-    smartScroll();
+    return true;
+  }
+
+  function appendStream(delta) {
+    if (!streamTextNode && !beginStream()) return;
+
+    streamTextNode.appendData(delta);
+
+    if (!scrollQueued) {
+      scrollQueued = true;
+      requestAnimationFrame(() => {
+        scrollQueued = false;
+        smartScroll();
+      });
+    }
   }
 
   /* ---------------- config UI ---------------- */
@@ -1299,13 +983,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   function addMessage(role, content, pending = false) {
     const chat = ensureChat();
 
-    const message = {
-      id: makeId(),
-      role,
-      content,
-      createdAt: now()
-    };
-
+    const message = { id: makeId(), role, content, createdAt: now() };
     if (pending) message.pending = true;
 
     chat.messages.push(message);
@@ -1338,7 +1016,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
     const chat = currentChat();
 
-    // One place for the placeholder, regardless of mode.
     chat.messages.push({
       id: makeId(),
       role: "assistant",
@@ -1354,6 +1031,29 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     await requestModel(chat, buildMode ? BUILD_INSTRUCTIONS : "");
   }
 
+  /* Windowed history: keep the request small so free models stay fast. */
+  function buildHistory(chat) {
+    let msgs = chat.messages
+      .filter((m) => !m.pending && m.content)
+      .map((m) => ({ role: m.role, content: m.content }));
+
+    if (msgs.length > MAX_HISTORY_MSGS) {
+      msgs = msgs.slice(-MAX_HISTORY_MSGS);
+    }
+
+    let total = msgs.reduce((n, m) => n + m.content.length, 0);
+
+    while (msgs.length > 2 && total > MAX_HISTORY_CHARS) {
+      total -= msgs[0].content.length;
+      msgs.shift();
+    }
+
+    // The API expects the first non-system message to be from the user.
+    while (msgs.length && msgs[0].role !== "user") msgs.shift();
+
+    return msgs;
+  }
+
   async function requestModel(chat, buildInstructions) {
     const pending = chat.messages[chat.messages.length - 1];
 
@@ -1366,14 +1066,33 @@ button:disabled { opacity: .45; cursor: not-allowed; }
         : "") +
       (buildInstructions ? "\n\n" + buildInstructions : "");
 
-    const history = chat.messages
-      .filter((m) => !m.pending && m.content)
-      .map((m) => ({ role: m.role, content: m.content }));
+    const history = buildHistory(chat);
 
     aborter = new AbortController();
-    setBusy(true);
 
     let answer = "";
+    let idleTimedOut = false;
+    let idleTimer = null;
+    let hardTimer = null;
+
+    const clearTimers = () => {
+      clearTimeout(idleTimer);
+      clearTimeout(hardTimer);
+    };
+
+    const armIdle = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        idleTimedOut = true;
+        aborter?.abort();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    setBusy(true);
+    beginStream();
+    armIdle();
+
+    hardTimer = setTimeout(() => aborter?.abort(), HARD_TIMEOUT_MS);
 
     try {
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -1382,7 +1101,9 @@ button:disabled { opacity: .45; cursor: not-allowed; }
         headers: {
           Authorization: "Bearer " + getSetting(STORAGE.key, "").trim(),
           "Content-Type": "application/json",
-          "HTTP-Referer": location.origin && location.origin !== "null" ? location.origin : "https://forge.local",
+          "HTTP-Referer": location.origin && location.origin !== "null"
+            ? location.origin
+            : "https://forge.local",
           "X-Title": "Forge AI"
         },
         body: JSON.stringify({
@@ -1404,6 +1125,20 @@ button:disabled { opacity: .45; cursor: not-allowed; }
           detail = response.statusText;
         }
 
+        // Free-tier rate limits deserve their own message.
+        if (response.status === 429) {
+          throw new Error(
+            "RATE_LIMIT: this free model is rate-limited right now. " +
+            "Wait 30–60 seconds, or switch to another :free model in the dropdown."
+          );
+        }
+
+        if (response.status === 402) {
+          throw new Error(
+            "NO_CREDITS: this model needs OpenRouter credits. Pick a model ending in \":free\"."
+          );
+        }
+
         throw new Error(
           "OpenRouter error (" + response.status + "): " + (detail || "Request failed")
         );
@@ -1422,6 +1157,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       while (!finished) {
         const { value, done } = await reader.read();
         if (done) break;
+
+        armIdle();
 
         buffer += decoder.decode(value, { stream: true });
 
@@ -1450,37 +1187,76 @@ button:disabled { opacity: .45; cursor: not-allowed; }
             throw new Error(data.error.message || "Model stream error");
           }
 
-          const delta = data.choices?.[0]?.delta?.content || "";
+          const choice = data.choices?.[0];
+          const delta = choice?.delta?.content || "";
 
           if (delta) {
             answer += delta;
             pending.content = answer;
-            paintStream(answer);
+            appendStream(delta);
+          }
+
+          if (choice?.finish_reason === "length") {
+            appendStream("\n\n_— response hit the token limit; increase max tokens if truncated —_");
           }
         }
       }
 
+      // Some providers ignore stream:true and return one JSON object.
+      if (!answer && buffer.trim()) {
+        try {
+          const json = JSON.parse(buffer.trim());
+          const content = json?.choices?.[0]?.message?.content;
+          if (content) {
+            answer = content;
+            pending.content = answer;
+            appendStream(answer);
+          }
+        } catch {
+          /* not JSON, ignore */
+        }
+      }
+
       pending.pending = false;
-      pending.content = answer || "The model returned an empty response.";
+      pending.content = answer || "The model returned an empty response. Try another model.";
     } catch (error) {
       pending.pending = false;
 
-      if (error.name === "AbortError") {
+      if (error.name === "AbortError" && idleTimedOut) {
+        pending.content = answer
+          ? answer + "\n\n---\n**Stream stalled** — no data for " + (IDLE_TIMEOUT_MS / 1000) +
+            "s. Partial answer kept above. Try again or pick a different model."
+          : "**Stream stalled** — the model sent nothing for " + (IDLE_TIMEOUT_MS / 1000) +
+            "s. Free models do this when busy; try again or switch model.";
+      } else if (error.name === "AbortError") {
         pending.content = answer
           ? answer + "\n\n*— generation stopped —*"
           : "*Generation stopped.*";
       } else if (answer) {
+        pending.content = answer + "\n\n---\n**Stream interrupted:** " + error.message;
+      } else if (String(error.message).startsWith("RATE_LIMIT:")) {
         pending.content =
-          answer + "\n\n---\n**Stream interrupted:** " + error.message;
+          "**Rate limited**\n\n" + String(error.message).replace("RATE_LIMIT: ", "") +
+          "\n\nFree models share a small global quota. Switching model is usually faster than waiting.";
+      } else if (String(error.message).startsWith("NO_CREDITS:")) {
+        pending.content = "**No credits**\n\n" +
+          String(error.message).replace("NO_CREDITS: ", "");
       } else {
         pending.content =
           "**Request failed**\n\n" + error.message +
-          "\n\nCheck your API key, the selected model ID (free models rotate — try another), your OpenRouter credits, and your network connection.";
+          "\n\nCheck: API key valid · model ID correct (free IDs rotate) · OpenRouter credits · network.";
       }
     } finally {
+      clearTimers();
+      pending.pending = false;
+
       chat.updatedAt = now();
+
+      // FIX: saveChats can no longer throw, so this always completes
+      // and the button never stays stuck.
       saveChats();
-      renderChat(false); // don't yank the view if the user scrolled up
+      renderChat(false);
+      streamTextNode = null;
       setBusy(false);
       aborter = null;
     }
@@ -1571,8 +1347,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
   /* ---------------- init ---------------- */
 
-  // A page reload during generation would otherwise leave a message
-  // stuck on "Generating response…" forever.
+  // Un-stick any message that was mid-generation when the page reloaded.
   let repaired = false;
 
   chats.forEach((chat) => {
@@ -1580,7 +1355,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       if (message.pending) {
         message.pending = false;
         if (!message.content) {
-          message.content = "*Generation was interrupted (the page was reloaded).*";
+          message.content = "*Generation was interrupted (page reloaded).*";
         }
         repaired = true;
       }
@@ -1588,7 +1363,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   });
 
   if (repaired) {
-    localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
+    try {
+      localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
+    } catch {
+      /* ignore */
+    }
   }
 
   populateModels();
