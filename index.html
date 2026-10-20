@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b12">
+<title>Forge AI — Think It. Forge It.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #080b12;
+  --panel: #0e131d;
+  --panel2: #121a27;
+  --line: #202a3b;
+  --text: #e8edf7;
+  --muted: #8290a8;
+  --accent: #72f0bd;
+  --blue: #6ea8ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.mono, pre, code { font-family: "DM Mono", monospace; }
+
+.shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.sidebar {
+  background: #0a0e16;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand {
+  padding: 23px 20px 20px;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+}
+
+.logo {
+  width: 35px;
+  height: 35px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #72f0bd, #55a8ff);
+  display: grid;
+  place-items: center;
+  color: #07110f;
+  font-weight: 900;
+  font-size: 19px;
+  box-shadow: 0 0 24px #72f0bd20;
+}
+
+.brandname {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.tagline {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+  letter-spacing: .12em;
+}
+
+.side-actions {
+  padding: 0 13px 17px;
+  display: grid;
+  gap: 8px;
+}
+
+.primary, .secondary, .iconbtn, .modebtn, .chip {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: .18s;
+}
+
+.primary {
+  background: var(--accent);
+  color: #07120f;
+  font-weight: 800;
+  padding: 11px 13px;
+}
+
+.primary:hover { filter: brightness(1.07); }
+
+.secondary {
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 13px;
+  text-align: left;
+}
+
+.secondary:hover, .iconbtn:hover, .modebtn:hover, .chip:hover {
+  border-color: #49627b;
+  background: var(--panel2);
+}
+
+.section-label {
+  padding: 10px 19px 8px;
+  color: #68768e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.history {
+  padding: 0 9px;
+  overflow: auto;
+  flex: 1;
+}
+
+.history-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #aab5c8;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.history-item.active, .history-item:hover {
+  background: #121a27;
+  border-color: #202a3b;
+  color: #fff;
+}
+
+.history-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.side-footer {
+  border-top: 1px solid var(--line);
+  padding: 13px;
+  display: grid;
+  gap: 8px;
+}
+
+.statusline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 5px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f0b35d;
+}
+
+.dot.good {
+  background: var(--accent);
+  box-shadow: 0 0 10px #72f0bd66;
+}
+
+.workspace {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at 50% -20%, #1c344520, transparent 50%), var(--bg);
+}
+
+.topbar {
+  height: 65px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  gap: 15px;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: .15em;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.top-title {
+  font-size: 13px;
+  color: #b7c3d8;
+  margin-top: 3px;
+}
+
+.top-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.modebtn {
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 8px 11px;
+}
+
+.modebtn.active {
+  border-color: #72f0bd65;
+  color: var(--accent);
+  background: #72f0bd0c;
+}
+
+.iconbtn {
+  background: var(--panel);
+  color: #b6c3d7;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome {
+  margin: auto;
+  width: min(790px, 100%);
+  padding: 50px 25px 60px;
+}
+
+.hero-mark {
+  width: 54px;
+  height: 54px;
+  border: 1px solid #72f0bd48;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 27px;
+  background: #72f0bd0b;
+  margin-bottom: 24px;
+  box-shadow: 0 0 45px #72f0bd0c;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero h1 {
+  font-size: clamp(34px, 5vw, 55px);
+  line-height: 1.08;
+  letter-spacing: -.055em;
+  margin: 13px 0 16px;
+  font-weight: 800;
+}
+
+.gradient {
+  background: linear-gradient(90deg, #e9f4ff, #72f0bd 60%, #6ea8ff);
+  color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  max-width: 580px;
+  color: #91a0b8;
+  line-height: 1.75;
+  font-size: 14px;
+}
+
+.chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.chip {
+  text-align: left;
+  background: #0e131d;
+  padding: 15px;
+  color: #dbe4f2;
+  min-height: 80px;
+}
+
+.chip strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.chip span {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.chat-list {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: 25px 25px 35px;
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+}
+
+.message {
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  gap: 13px;
+  animation: appear .2s ease;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: #152033;
+  border: 1px solid #26364d;
+  color: #c6d5e9;
+}
+
+.message.assistant .avatar {
+  background: #72f0bd13;
+  color: var(--accent);
+  border-color: #72f0bd40;
+}
+
+.msg-body {
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.msg-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: #d4deed;
+  font-weight: 700;
+}
+
+.msg-head small {
+  font-size: 10px;
+  color: #6d7d95;
+  font-weight: 400;
+}
+
+.msg-content {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #c2ccdc;
+  overflow-wrap: anywhere;
+}
+
+.msg-content h1, .msg-content h2, .msg-content h3 {
+  color: #f1f5fb;
+  line-height: 1.3;
+  margin: 20px 0 10px;
+}
+
+.msg-content h1 { font-size: 22px; }
+.msg-content h2 { font-size: 18px; }
+.msg-content h3 { font-size: 15px; }
+.msg-content p { margin: 9px 0; }
+
+.msg-content ul, .msg-content ol {
+  padding-left: 23px;
+  margin: 9px 0;
+}
+
+.msg-content li { padding: 3px 0; }
+
+.msg-content a {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+.msg-content blockquote {
+  border-left: 2px solid var(--accent);
+  margin: 12px 0;
+  padding: 2px 13px;
+  color: #91a0b8;
+}
+
+.msg-content pre {
+  position: relative;
+  white-space: pre;
+  overflow: auto;
+  background: #070a10;
+  border: 1px solid #243044;
+  border-radius: 10px;
+  padding: 17px;
+  margin: 13px 0;
+  font-size: 11px;
+  line-height: 1.65;
+  color: #cce7e0;
+}
+
+.msg-content :not(pre) > code {
+  background: #1b2636;
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #8feac5;
+  font-size: .9em;
+}
+
+.codewrap { position: relative; }
+
+.copycode {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: #1a2433;
+  color: #aebcd0;
+  border: 1px solid #334258;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 10px;
+  z-index: 1;
+}
+
+.typing {
+  display: flex;
+  gap: 5px;
+  padding: 10px 0;
+}
+
+.typing i {
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+.typing i:nth-child(2) { animation-delay: .15s; }
+.typing i:nth-child(3) { animation-delay: .3s; }
+
+.composer-wrap {
+  padding: 12px 22px 17px;
+  border-top: 1px solid var(--line);
+  background: #090d14ee;
+}
+
+.composer {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  border: 1px solid #2b394e;
+  background: #0d131e;
+  border-radius: 15px;
+  padding: 12px 13px 10px;
+  box-shadow: 0 12px 50px #0003;
+}
+
+.composer:focus-within {
+  border-color: #72f0bd78;
+  box-shadow: 0 0 0 3px #72f0bd0a;
+}
+
+.prompt {
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #e8edf7;
+  font-size: 13px;
+  line-height: 1.65;
+  min-height: 48px;
+  max-height: 200px;
+  padding: 5px 4px;
+}
+
+.prompt::placeholder { color: #62718a; }
+
+.composer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.composer-tools {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tool-label {
+  font-size: 10px;
+  color: #6f7f98;
+}
+
+.select-mini {
+  background: #111a28;
+  color: #aebbd0;
+  border: 1px solid #29374c;
+  border-radius: 7px;
+  padding: 6px 8px;
+  font-size: 10px;
+  max-width: 180px;
+}
+
+.send {
+  width: 36px;
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #07120f;
+  font-weight: 900;
+  font-size: 17px;
+}
+
+.hint {
+  text-align: center;
+  color: #55637a;
+  font-size: 10px;
+  margin: 9px 0 0;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #0009;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 20;
+}
+
+.overlay.open { display: flex; }
+
+.modal {
+  width: min(520px, 100%);
+  max-height: 90dvh;
+  overflow: auto;
+  border: 1px solid #2a384d;
+  background: #0d131e;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 25px 90px #0009;
+}
+
+.modal h2 {
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+
+.modal p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+  margin: 17px 0;
+}
+
+.field label {
+  font-size: 11px;
+  color: #b6c4d8;
+}
+
+.field input, .field select, .field textarea {
+  width: 100%;
+  border: 1px solid #2b394e;
+  background: #080d15;
+  border-radius: 9px;
+  padding: 10px;
+  color: #e8edf7;
+  font-size: 12px;
+  outline: none;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: #72f0bd88;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.notice {
+  border: 1px solid #66522a;
+  background: #241d10;
+  color: #e8c987;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #172334;
+  border: 1px solid #33445b;
+  border-radius: 9px;
+  padding: 10px 15px;
+  font-size: 12px;
+  z-index: 50;
+  display: none;
+}
+
+.toast.show { display: block; }
+.mobile-menu { display: none; }
+
+@keyframes pulse {
+  0%, 100% { opacity: .25; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 760px) {
+  .shell { grid-template-columns: 1fr; }
+
+  .sidebar {
+    position: fixed;
+    z-index: 15;
+    inset: 0 auto 0 0;
+    width: 270px;
+    transform: translateX(-101%);
+    transition: transform .2s;
+    box-shadow: 20px 0 60px #0005;
+  }
+
+  .sidebar.open { transform: translateX(0); }
+  .mobile-menu { display: inline-block; }
+  .topbar { padding: 0 14px; height: 59px; }
+  .top-right { gap: 5px; }
+  .modebtn { padding: 7px; font-size: 10px; }
+  .welcome { padding: 35px 20px; }
+  .chips { grid-template-columns: 1fr; }
+  .chat-list { padding: 22px 16px; }
+  .composer-wrap { padding: 10px 10px 13px; }
+  .select-mini { max-width: 140px; }
+  .top-title { font-size: 11px; }
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">F</div>
+      <div>
+        <div class="brandname">FORGE AI</div>
+        <div class="tagline">THINK IT. FORGE IT.</div>
+      </div>
+    </div>
+
+    <div class="side-actions">
+      <button class="primary" id="newChat">＋ &nbsp; New conversation</button>
+      <button class="secondary" id="openSettings">⚙ &nbsp; Model & API settings</button>
+    </div>
+
+    <div class="section-label">Your workspace</div>
+    <div class="history" id="history"></div>
+
+    <div class="side-footer">
+      <div class="statusline">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">API key not configured</span>
+      </div>
+      <div class="statusline">
+        <span>◈</span>
+        <span>Local-first conversation storage</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div class="top-left">
+        <button class="iconbtn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+        <div>
+          <div class="eyebrow">ENGINEERING INTELLIGENCE</div>
+          <div class="top-title" id="topTitle">Your next idea starts here.</div>
+        </div>
+      </div>
+
+      <div class="top-right">
+        <button class="modebtn active" id="chatMode">◉ Chat</button>
+        <button class="modebtn" id="buildMode">⌘ Build Mode</button>
+        <button class="iconbtn" id="topSettings" title="Settings">⚙</button>
+      </div>
+    </header>
+
+    <section class="content" id="content">
+      <div class="welcome" id="welcome">
+        <div class="hero">
+          <div class="hero-mark">ϟ</div>
+          <div class="hero-kicker">YOUR AI ENGINEERING WORKSPACE</div>
+          <h1>Ideas in.<br><span class="gradient">Reality out.</span></h1>
+          <p>Describe what you want to build, debug, or understand. Forge AI can help turn your instructions into code, product plans, and practical engineering solutions.</p>
+
+          <div class="chips">
+            <button class="chip" data-prompt="Build a polished, responsive portfolio website with a dark theme, animated hero, project cards, and contact section. Provide complete runnable code.">
+              <strong>↗ Build a website</strong>
+              <span>Go from a plain-English idea to a complete implementation.</span>
+            </button>
+
+            <button class="chip" data-prompt="Design and implement a full-stack application architecture for an expense tracker, including UI, data model, API routes, validation, and setup instructions.">
+              <strong>⌘ Engineer an app</strong>
+              <span>Plan the architecture, features, data, and implementation.</span>
+            </button>
+
+            <button class="chip" data-prompt="Review this code for bugs, edge cases, performance issues, and security risks. Explain the root causes and provide a corrected version.">
+              <strong>⌕ Debug and improve</strong>
+              <span>Find problems and make targeted, maintainable fixes.</span>
+            </button>
+
+            <button class="chip" data-prompt="Create a browser-based 3D arcade racing game prototype. First outline a practical implementation, then generate the complete runnable code and controls.">
+              <strong>⚡ Forge a game</strong>
+              <span>Turn a game concept into a playable prototype plan and code.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-list" id="chatList" hidden></div>
+    </section>
+
+    <footer class="composer-wrap">
+      <form class="composer" id="chatForm">
+        <textarea class="prompt" id="prompt" rows="2" placeholder="Describe what you want to build, fix, or figure out…" aria-label="Message Forge AI"></textarea>
+
+        <div class="composer-bottom">
+          <div class="composer-tools">
+            <span class="tool-label" id="modeLabel">CHAT</span>
+            <select class="select-mini" id="modelQuick" aria-label="Model"></select>
+            <button type="button" class="iconbtn" id="clearPrompt">Clear</button>
+          </div>
+
+          <button class="send" id="sendBtn" type="submit" aria-label="Send message">↑</button>
+        </div>
+      </form>
+
+      <div class="hint">AI can make mistakes. Review generated code before running it. · API key stays in this browser.</div>
+    </footer>
+  </main>
+</div>
+
+<div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="modal">
+    <h2 id="settingsTitle">Forge configuration</h2>
+    <p>Connect OpenRouter to power Forge AI. Your API key is stored in this browser's local storage. For a production app, route requests through a secure backend instead.</p>
+
+    <div class="field">
+      <label for="apiKey">OpenRouter API key</label>
+      <input id="apiKey" type="password" autocomplete="off" placeholder="sk-or-v1-…">
+    </div>
+
+    <div class="field">
+      <label for="modelSelect">Model ID</label>
+      <input id="modelSelect" list="modelOptions" placeholder="provider/model-name">
+      <datalist id="modelOptions"></datalist>
+    </div>
+
+    <div class="field">
+      <label for="systemPrompt">System instructions</label>
+      <textarea id="systemPrompt" rows="5"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="temperature">Temperature: <span id="tempValue">0.4</span></label>
+      <input id="temperature" type="range" min="0" max="1.5" step="0.1" value="0.4">
+    </div>
+
+    <div class="field">
+      <label for="maxTokens">Maximum response tokens</label>
+      <select id="maxTokens">
+        <option value="2048">2,048 — faster</option>
+        <option value="4096" selected>4,096 — balanced</option>
+        <option value="8192">8,192 — longer code</option>
+      </select>
+    </div>
+
+    <div class="notice">
+      Never paste your API key into a public/shared computer. Browser storage is convenient for a personal prototype, but it is not a secure production secret store.
+    </div>
+
+    <div class="modal-actions">
+      <button class="iconbtn" id="cancelSettings" type="button">Cancel</button>
+      <button class="primary" id="saveSettings" type="button">Save configuration</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+
+  const STORAGE = {
+    key: "forge_api_key_v1",
+    model: "forge_model_v1",
+    system: "forge_system_v1",
+    temp: "forge_temp_v1",
+    tokens: "forge_tokens_v1",
+    chats: "forge_chats_v1",
+    active: "forge_active_v1"
+  };
+
+  const DEFAULT_MODEL = "openai/gpt-4o-mini";
+
+  const DEFAULT_SYSTEM = `You are Forge AI, a senior software engineer, AI systems architect, product builder, and cybersecurity-aware coding agent. Be direct, precise, practical, and implementation-first. When asked to build software, provide coherent runnable implementations, architecture and setup steps appropriate to the request. Make sensible assumptions when details are missing and ask only essential questions. For multi-file projects, clearly label each file and its complete contents. Distinguish generated code from code that has actually been executed or tested; never claim to have run, tested, deployed, or verified something unless a real tool did so. Be honest about model/tool limitations. Preserve existing work and prefer targeted fixes. Support authorized defensive security and safe labs; do not assist credential theft, malware deployment, or unauthorized compromise.`;
+
+  const PRESETS = [
+    { label: "OpenAI GPT-4o mini", value: "openai/gpt-4o-mini" },
+    { label: "OpenAI GPT-4.1", value: "openai/gpt-4.1" },
+    { label: "Anthropic Claude Sonnet 4", value: "anthropic/claude-sonnet-4" },
+    { label: "Google Gemini 2.5 Flash", value: "google/gemini-2.5-flash" },
+    { label: "DeepSeek Chat", value: "deepseek/deepseek-chat" },
+    { label: "Qwen Coder", value: "qwen/qwen3-coder" }
+  ];
+
+  let chats = loadJSON(STORAGE.chats, []);
+  let activeId = localStorage.getItem(STORAGE.active) || null;
+  let busy = false;
+  let buildMode = false;
+  let aborter = null;
+
+  const now = () => new Date().toISOString();
+
+  const makeId = () =>
+    crypto.randomUUID
+      ? crypto.randomUUID()
+      : String(Date.now()) + Math.random().toString(36).slice(2);
+
+  function loadJSON(key, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(key)) ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[c]));
+  }
+
+  function toast(message) {
+    const el = $("toast");
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.classList.remove("show"), 2600);
+  }
+
+  function getSetting(key, fallback) {
+    return localStorage.getItem(key) ?? fallback;
+  }
+
+  function currentModel() {
+    return getSetting(STORAGE.model, DEFAULT_MODEL);
+  }
+
+  function saveChats() {
+    localStorage.setItem(STORAGE.chats, JSON.stringify(chats));
+    localStorage.setItem(STORAGE.active, activeId || "");
+    renderHistory();
+  }
+
+  function currentChat() {
+    return chats.find(c => c.id === activeId) || null;
+  }
+
+  function newChat() {
+    const chat = {
+      id: makeId(),
+      title: "New conversation",
+      createdAt: now(),
+      updatedAt: now(),
+      messages: []
+    };
+
+    chats.unshift(chat);
+    activeId = chat.id;
+    saveChats();
+    renderChat();
+    $("prompt").focus();
+    $("sidebar").classList.remove("open");
+  }
+
+  function ensureChat() {
+    if (!currentChat()) newChat();
+    return currentChat();
+  }
+
+  function renderHistory() {
+    const root = $("history");
+    root.innerHTML = "";
+
+    if (!chats.length) {
+      root.innerHTML = '<div style="padding:12px;color:#596780;font-size:11px;line-height:1.6">Your conversations will appear here.</div>';
+      return;
+    }
+
+    chats.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).forEach(chat => {
+      const button = document.createElement("button");
+      button.className = "history-item" + (chat.id === activeId ? " active" : "");
+
+      button.innerHTML = `
+        <span style="color:#6e809b">◷</span>
+        <span>${esc(chat.title)}</span>
+        <span title="Delete conversation" style="color:#71819a">⋯</span>
+      `;
+
+      button.addEventListener("click", event => {
+        if (event.target.closest("span:last-child")) {
+          event.stopPropagation();
+
+          if (confirm("Delete this conversation?")) {
+            chats = chats.filter(c => c.id !== chat.id);
+
+            if (activeId === chat.id) {
+              activeId = chats[0]?.id || null;
+            }
+
+            saveChats();
+            renderChat();
+          }
+
+          return;
+        }
+
+        activeId = chat.id;
+        saveChats();
+        renderChat();
+        $("sidebar").classList.remove("open");
+      });
+
+      root.appendChild(button);
+    });
+  }
+
+  function renderChat() {
+    const chat = currentChat();
+    const welcome = $("welcome");
+    const list = $("chatList");
+
+    if (!chat || !chat.messages.length) {
+      welcome.hidden = false;
+      list.hidden = true;
+      list.innerHTML = "";
+      $("topTitle").textContent = "Your next idea starts here.";
+      return;
+    }
+
+    welcome.hidden = true;
+    list.hidden = false;
+    list.innerHTML = "";
+    $("topTitle").textContent = chat.title;
+
+    chat.messages.forEach(message => {
+      list.appendChild(makeMessage(message));
+    });
+
+    list.scrollTop = list.scrollHeight;
+  }
+
+  function markdownHTML(text) {
+    if (window.marked && window.DOMPurify) {
+      marked.setOptions({ gfm: true, breaks: true });
+
+      return DOMPurify.sanitize(marked.parse(text), {
+        USE_PROFILES: { html: true }
+      });
+    }
+
+    return `<p>${esc(text).replace(/\n/g, "<br>")}</p>`;
+  }
+
+  function makeMessage(message) {
+    const wrap = document.createElement("article");
+    wrap.className = "message " + message.role;
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = message.role === "user" ? "YOU" : "F";
+
+    const body = document.createElement("div");
+    body.className = "msg-body";
+
+    const head = document.createElement("div");
+    head.className = "msg-head";
+    head.innerHTML = `${message.role === "user" ? "You" : "Forge AI"} <small>${message.role === "user" ? "INPUT" : "RESPONSE"}</small>`;
+
+    const content = document.createElement("div");
+    content.className = "msg-content";
+
+    if (message.pending) {
+      content.innerHTML = '<div class="typing"><i></i><i></i><i></i></div><div style="color:#71819a;font-size:11px">Generating response…</div>';
+    } else {
+      content.innerHTML
